@@ -39,7 +39,7 @@ jobs:
         ASPNETCORE_ENVIRONMENT: Development
 
   test:
-    name: Tests
+    name: Test
     needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 6
@@ -57,11 +57,19 @@ jobs:
         ASPNETCORE_ENVIRONMENT: Development  
 
   security:
-    name: Security Checks
+    name: Security Check
     needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore          
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/dotnet@master
         env:
