@@ -19,8 +19,8 @@ env:
   DOTNET_NOLOGO: true    
 jobs:
 
-  build-and-test:
-    name: Build and Run Tests
+  build:
+    name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
@@ -38,9 +38,27 @@ jobs:
       env:
         ASPNETCORE_ENVIRONMENT: Development
 
+  test:
+    name: Tests
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+      env:
+        ASPNETCORE_ENVIRONMENT: Development  
+
   security:
-    name: Security
-    needs: [build-and-test]
+    name: Security Checks
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -49,12 +67,12 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high
+          args: --file=DevOpsCA4-POC.sln --severity-threshold=high
 
   prepare-release:
     name: Prepare Release (get version from tag)
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [security]
+    needs: [test, security]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
