@@ -75,7 +75,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --file=DevOpsCA4-POC.sln --severity-threshold=high
+          args: --file=TheWorkBook.Identity.sln --severity-threshold=high
 
   prepare-release:
     name: Prepare Release (get version from tag)
@@ -169,4 +169,3 @@ jobs:
         if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
         retention-days: 3 # Set low because I want to stay inside the limits of the free tier.
 
-  
